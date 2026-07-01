@@ -1,0 +1,62 @@
+/* BankBot — dark theme */
+QWidget {
+    font-size: 14px;
+    color: #e6e9ee;
+    background: #1e232b;
+}
+QListWidget#navList {
+    background: #171b21;
+    border: none;
+    padding-top: 8px;
+    font-size: 15px;
+}
+QListWidget#navList::item { padding: 12px 16px; }
+QListWidget#navList::item:selected { background: #3b7ddd; color: white; }
+QLabel#disclaimerBanner {
+    background: #2a2410;
+    border-top: 1px solid #4d4320;
+    color: #d8c98a;
+    padding: 8px 14px;
+    font-size: 12px;
+}
+QLabel#dropArea {
+    border: 2px dashed #48525f;
+    border-radius: 10px;
+    background: #262c35;
+    color: #9aa4b2;
+    font-size: 15px;
+}
+QLabel#dropArea[hover="true"] { border-color: #3b7ddd; background: #22303f; }
+QFrame#moneySummary, QFrame#reviewRow, QFrame#tierCard {
+    background: #262c35;
+    border: 1px solid #333b46;
+    border-radius: 8px;
+    padding: 12px;
+}
+QFrame#reviewRow { margin-bottom: 8px; }
+QLabel#summaryValue_leftover { font-weight: bold; color: #4cd18a; }
+QLabel#summaryValue_leftover[negative="true"] { color: #ff7a6c; }
+QLabel#summaryReview, QLabel#reviewHint { color: #e0c46a; }
+QLabel#tierExamples { color: #b6c0cf; font-style: italic; }
+QLabel#frameworkNote, QLabel#investDisclaimer { color: #9aa4b2; font-size: 12px; }
+QLabel#investAvailable, QLabel#goalsLeftover { font-size: 15px; }
+QLabel#sliderTotal { color: #9aa4b2; padding-top: 6px; }
+QPushButton {
+    background: #2f3742;
+    border: 1px solid #414b58;
+    border-radius: 6px;
+    padding: 6px 14px;
+}
+QPushButton:hover { background: #35414f; border-color: #3b7ddd; }
+QPushButton:disabled { color: #6b7480; background: #262c35; }
+QPushButton#dangerButton { color: #ff7a6c; border-color: #6e3a34; }
+QPushButton#dangerButton:hover { background: #3a2925; }
+QProgressBar {
+    border: 1px solid #414b58; border-radius: 6px; text-align: center; height: 18px;
+    color: #e6e9ee;
+}
+QProgressBar::chunk { background: #3b7ddd; border-radius: 5px; }
+QTableWidget { background: #262c35; border: 1px solid #333b46; gridline-color: #333b46; }
+QHeaderView::section {
+    background: #2f3742; border: none; padding: 6px; font-weight: bold; color: #e6e9ee;
+}

@@ -1,0 +1,11 @@
+# Runtime
+PySide6>=6.6
+pdfplumber>=0.10
+pytesseract>=0.3.10
+pdf2image>=1.17
+Pillow>=10.0
+SQLAlchemy>=2.0
+python-dateutil>=2.8
+
+# Dev / test
+pytest>=7.4

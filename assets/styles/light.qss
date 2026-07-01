@@ -1,0 +1,71 @@
+/* BankBot — light theme */
+QWidget {
+    font-size: 14px;
+    color: #1f2733;
+    background: #f5f6f8;
+}
+QListWidget#navList {
+    background: #e9ecf1;
+    border: none;
+    padding-top: 8px;
+    font-size: 15px;
+}
+QListWidget#navList::item {
+    padding: 12px 16px;
+}
+QListWidget#navList::item:selected {
+    background: #2d6cdf;
+    color: white;
+}
+QLabel#disclaimerBanner {
+    background: #fff8e1;
+    border-top: 1px solid #e0d28a;
+    color: #5f5320;
+    padding: 8px 14px;
+    font-size: 12px;
+}
+QLabel#dropArea {
+    border: 2px dashed #a9b4c4;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #66707e;
+    font-size: 15px;
+}
+QLabel#dropArea[hover="true"] {
+    border-color: #2d6cdf;
+    background: #eef4ff;
+}
+QFrame#moneySummary, QFrame#reviewRow, QFrame#tierCard {
+    background: #ffffff;
+    border: 1px solid #dfe3ea;
+    border-radius: 8px;
+    padding: 12px;
+}
+QFrame#reviewRow { margin-bottom: 8px; }
+QLabel#summaryValue_leftover { font-weight: bold; color: #1e824c; }
+QLabel#summaryValue_leftover[negative="true"] { color: #c0392b; }
+QLabel#summaryReview, QLabel#reviewHint { color: #8a6d1a; }
+QLabel#tierExamples { color: #445; font-style: italic; }
+QLabel#frameworkNote, QLabel#investDisclaimer {
+    color: #66707e; font-size: 12px;
+}
+QLabel#investAvailable, QLabel#goalsLeftover { font-size: 15px; }
+QLabel#sliderTotal { color: #66707e; padding-top: 6px; }
+QPushButton {
+    background: #ffffff;
+    border: 1px solid #c3cbd6;
+    border-radius: 6px;
+    padding: 6px 14px;
+}
+QPushButton:hover { background: #eef4ff; border-color: #2d6cdf; }
+QPushButton:disabled { color: #a7afba; background: #f0f1f3; }
+QPushButton#dangerButton { color: #c0392b; border-color: #e0a9a2; }
+QPushButton#dangerButton:hover { background: #fdecea; }
+QProgressBar {
+    border: 1px solid #c3cbd6; border-radius: 6px; text-align: center; height: 18px;
+}
+QProgressBar::chunk { background: #2d6cdf; border-radius: 5px; }
+QTableWidget { background: #ffffff; border: 1px solid #dfe3ea; }
+QHeaderView::section {
+    background: #eef1f5; border: none; padding: 6px; font-weight: bold;
+}
