@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
+    QPushButton,
     QScrollArea,
     QSlider,
     QVBoxLayout,
@@ -78,6 +79,14 @@ class InvestPage(QWidget):
         self._risk = LinkedRiskSliders()
         self._risk.changed.connect(self._on_risk_changed)
         self._v.addWidget(self._risk)
+
+        # Account-type optimization popup.
+        tips_row = QHBoxLayout()
+        self._tips_btn = QPushButton("Show TFSA / FHSA account tips…")
+        self._tips_btn.clicked.connect(self._show_account_tips)
+        tips_row.addWidget(self._tips_btn)
+        tips_row.addStretch(1)
+        self._v.addLayout(tips_row)
 
         # Allocation models + why-invest panel.
         self._tier_example_labels: dict[str, QLabel] = {}
@@ -174,6 +183,10 @@ class InvestPage(QWidget):
         repo.set_setting("risk_high_pct", str(values["high"]))
         repo.set_setting("risk_med_pct", str(values["med"]))
         repo.set_setting("risk_low_pct", str(values["low"]))
+
+    def _show_account_tips(self) -> None:
+        from ..dialogs import AccountTipsDialog
+        AccountTipsDialog(self._monthly_cents(), self._currency, self).exec()
 
     def _on_currency(self, currency: str) -> None:
         repo.set_setting("currency", currency)

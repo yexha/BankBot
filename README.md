@@ -28,9 +28,13 @@ Implemented and unit-tested:
 5. Savings goals with required-monthly-contribution math and **leftover-after-goals**.
 6. Investment allocation: monthly-invest slider + three risk sliders that always
    sum to 100%, with transparent allocation models and plain-language reasoning.
+7. Column-aware statement parsing that correctly separates deposits (income) from
+   withdrawals (spending) on tabular statements like RBC/CIBC.
+8. TFSA/FHSA account-optimization popup, editable contribution limits, and
+   CSV/PDF export of the budget breakdown.
 
-Planned for the next pass: TFSA/FHSA account-optimization popup, CSV/PDF export,
-and PyInstaller single-`.exe` packaging (bundling Tesseract + poppler).
+Planned for the next pass: PyInstaller single-`.exe` packaging (bundling Tesseract
++ poppler) and a final edge-case hardening sweep.
 
 ## Architecture
 
