@@ -96,6 +96,39 @@ def test_learned_rule_applies_to_future_txns(database):
     assert feb.review_status == "auto"  # auto-classified, not re-queued
 
 
+def test_confirm_credit_as_income(database):
+    tid = _add_txn("INTERAC E-TRANSFER AUTODEPOSIT ACME", 250000, "credit")
+    recategorize_all()
+    # A credit we couldn't confirm as income is queued, not counted as cost.
+    with session_scope() as s:
+        t = s.get(Transaction, tid)
+        assert t.review_status == "needs_review"
+        assert t.essential_want != "want"
+
+    apply_review_decision(tid, "income", remember=True)
+    with session_scope() as s:
+        t = s.get(Transaction, tid)
+        assert t.is_income
+        assert t.essential_want == "income"
+        assert t.review_status == "confirmed"
+
+
+def test_learned_income_applies_to_future_credit(database):
+    tid = _add_txn("INTERAC E-TRANSFER AUTODEPOSIT ACME", 250000, "credit",
+                   txn_date=date(2026, 1, 1))
+    recategorize_all()
+    apply_review_decision(tid, "income", remember=True)
+    _add_txn("INTERAC E-TRANSFER AUTODEPOSIT ACME", 250000, "credit",
+             txn_date=date(2026, 2, 1))
+    recategorize_all()
+    with session_scope() as s:
+        feb = s.scalar(
+            select(Transaction).where(Transaction.txn_date == date(2026, 2, 1))
+        )
+    assert feb.is_income
+    assert feb.review_status == "auto"
+
+
 def test_settings_roundtrip(database):
     repo.set_setting("currency", "USD")
     assert repo.get_setting("currency") == "USD"

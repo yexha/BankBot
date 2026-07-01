@@ -10,9 +10,10 @@ import hashlib
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from . import column_parser
 from .base import ParsedTxn, detect_year
 from .ocr import ocr_image, ocr_pdf
-from .pdf_text import extract_text, has_text_layer
+from .pdf_text import extract_text, extract_words_by_page, has_text_layer
 from .profiles import choose_profile
 
 _IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"}
@@ -41,16 +42,20 @@ def file_sha256(path: Path | str) -> str:
     return h.hexdigest()
 
 
-def _get_text(path: Path) -> tuple[str, bool]:
-    """Return (text, used_ocr) for a supported file."""
+def _extract(path: Path, year_hint_text: str = "") -> tuple[str, list[list[dict]], bool]:
+    """Return (text, word_pages, used_ocr).
+
+    ``word_pages`` carries per-word coordinates for the column parser and is empty
+    for OCR/image sources (no reliable coordinates there).
+    """
     ext = path.suffix.lower()
     if ext in _IMAGE_EXTS:
-        return ocr_image(path), True
+        return ocr_image(path), [], True
     if ext == ".pdf":
         text = extract_text(path)
         if has_text_layer(text):
-            return text, False
-        return ocr_pdf(path), True  # scanned PDF fallback
+            return text, extract_words_by_page(path), False
+        return ocr_pdf(path), [], True  # scanned PDF fallback
     raise ValueError(f"Unsupported file type: {ext or 'unknown'}")
 
 
@@ -63,7 +68,7 @@ def extract_file(path: Path | str, currency: str = "CAD") -> ExtractResult:
         return result
     try:
         result.file_hash = file_sha256(p)
-        text, used_ocr = _get_text(p)
+        text, word_pages, used_ocr = _extract(p)
         result.used_ocr = used_ocr
         if not text.strip():
             result.error = "No readable text found (the file may be blank or corrupted)."
@@ -71,7 +76,14 @@ def extract_file(path: Path | str, currency: str = "CAD") -> ExtractResult:
         profile = choose_profile(text)
         result.bank_profile = profile.name
         year = detect_year(text)
-        txns = profile.parse(text, year)
+
+        # Prefer the column-aware parser (correctly separates deposits from
+        # withdrawals); fall back to the generic line parser if there are no
+        # column headers or no word coordinates (e.g. OCR).
+        txns = column_parser.parse_pages(word_pages, year) if word_pages else []
+        if not txns:
+            txns = profile.parse(text, year)
+
         for t in txns:
             t.currency = currency
             if not t.dedupe_hash:

@@ -25,8 +25,9 @@ _MONTHS = {
 _MONEY_RE = re.compile(r"\(?-?\$?\s?\d{1,3}(?:,\d{3})*(?:\.\d{2})\)?")
 _ISO_DATE_RE = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
 _NUM_DATE_RE = re.compile(r"\b(\d{1,2})[/-](\d{1,2})(?:[/-](\d{2,4}))?\b")
-_MON_DATE_RE = re.compile(r"\b([A-Za-z]{3,9})\.?\s+(\d{1,2})\b")
-_DAY_MON_RE = re.compile(r"\b(\d{1,2})\s+([A-Za-z]{3,9})\b")
+# Month-name formats optionally carry a year, e.g. "Jun 22, 2026" / "22 Jun 2026".
+_MON_DATE_RE = re.compile(r"\b([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:,?\s*(\d{4}))?\b")
+_DAY_MON_RE = re.compile(r"\b(\d{1,2})\s+([A-Za-z]{3,9})(?:,?\s*(\d{4}))?\b")
 _YEAR_RE = re.compile(r"\b(20\d{2})\b")
 
 _CREDIT_HINTS = ("CR", "DEPOSIT", "CREDIT", "PAYROLL", "REFUND", "REBATE", "PYMT RCVD")
@@ -97,14 +98,16 @@ def parse_date(line: str, default_year: int) -> tuple[date, int, int] | None:
     m = _MON_DATE_RE.search(line)
     if m and m.group(1).upper()[:3] in _MONTHS:
         try:
-            return date(default_year, _MONTHS[m.group(1).upper()[:3]], int(m.group(2))), \
+            year = int(m.group(3)) if m.group(3) else default_year
+            return date(year, _MONTHS[m.group(1).upper()[:3]], int(m.group(2))), \
                 m.start(), m.end()
         except ValueError:
             return None
     m = _DAY_MON_RE.search(line)
     if m and m.group(2).upper()[:3] in _MONTHS:
         try:
-            return date(default_year, _MONTHS[m.group(2).upper()[:3]], int(m.group(1))), \
+            year = int(m.group(3)) if m.group(3) else default_year
+            return date(year, _MONTHS[m.group(2).upper()[:3]], int(m.group(1))), \
                 m.start(), m.end()
         except ValueError:
             return None

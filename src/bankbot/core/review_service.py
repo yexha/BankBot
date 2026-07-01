@@ -8,6 +8,7 @@ from .models import Rule, Transaction
 
 # review action -> (essential_want, is_recurring_bill)
 _DECISIONS = {
+    "income": ("income", False),
     "essential": ("essential", False),
     "want": ("want", False),
     "ignore": ("ignore", False),
@@ -23,16 +24,19 @@ def apply_review_decision(txn_id: int, decision: str, remember: bool = True) -> 
     if decision not in _DECISIONS:
         raise ValueError(f"Unknown review decision: {decision!r}")
     label, recurring = _DECISIONS[decision]
+    is_income = decision == "income"
 
     with session_scope() as s:
         txn = s.get(Transaction, txn_id)
         if txn is None:
             return
         txn.essential_want = label
-        txn.is_income = False
+        txn.is_income = is_income
         txn.review_status = "confirmed"
         txn.confidence = 1.0
-        if txn.category in (None, "Uncategorized", "Transfer", "Cash Withdrawal"):
+        if is_income:
+            txn.category = "Income"
+        elif txn.category in (None, "Uncategorized", "Transfer", "Cash Withdrawal"):
             txn.category = "Recurring Bill" if recurring else (txn.category or "Uncategorized")
         category = txn.category or "Uncategorized"
 

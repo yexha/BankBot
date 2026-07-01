@@ -73,13 +73,15 @@ class ReviewPage(QWidget):
         header.setWordWrap(True)
         v.addWidget(header)
 
-        reason = getattr(txn, "review_reason", None)
-        # review_reason isn't stored; derive a friendly hint from category.
-        hint = {
-            "Cash Withdrawal": "Cash withdrawal — what was it for?",
-            "Transfer": "Transfer / e-transfer — is this a bill (e.g. rent) or a want?",
-        }.get(txn.category or "", "We don't recognize this — how should we count it?")
-        note = QLabel(reason or hint)
+        is_credit = txn.direction == "credit"
+        if is_credit:
+            hint = "Incoming money — is this income (e.g. a paycheck) or should we ignore it?"
+        else:
+            hint = {
+                "Cash Withdrawal": "Cash withdrawal — what was it for?",
+                "Transfer": "Transfer / e-transfer — is this a bill (e.g. rent) or a want?",
+            }.get(txn.category or "", "We don't recognize this — how should we count it?")
+        note = QLabel(hint)
         note.setObjectName("reviewHint")
         note.setWordWrap(True)
         v.addWidget(note)
@@ -89,12 +91,17 @@ class ReviewPage(QWidget):
         remember.setChecked(True)
         controls.addWidget(remember)
         controls.addStretch(1)
-        for label, decision in [
-            ("Essential", "essential"),
-            ("Want", "want"),
-            ("Recurring bill", "recurring_bill"),
-            ("Ignore", "ignore"),
-        ]:
+        # Credits get an Income option; debits get the expense labels.
+        if is_credit:
+            actions = [("Income", "income"), ("Ignore", "ignore")]
+        else:
+            actions = [
+                ("Essential", "essential"),
+                ("Want", "want"),
+                ("Recurring bill", "recurring_bill"),
+                ("Ignore", "ignore"),
+            ]
+        for label, decision in actions:
             btn = QPushButton(label)
             btn.clicked.connect(
                 lambda _=False, tid=txn.id, d=decision, cb=remember:

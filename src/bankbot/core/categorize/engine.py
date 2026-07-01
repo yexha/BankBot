@@ -86,7 +86,8 @@ def classify_one(
     # A learned exact-payee rule is authoritative: once the user has confirmed what
     # a payee is, future identical payees must NOT be re-queued (even e-transfers).
     if rule is not None and rule.match_type == "exact_payee":
-        return Classification(rule.category, rule.essential_want, conf, False,
+        learned_income = rule.essential_want == "income"
+        return Classification(rule.category, rule.essential_want, conf, learned_income,
                               "auto", source_rule_id=rule.id)
 
     if txn.direction == "credit":
