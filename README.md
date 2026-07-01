@@ -32,9 +32,22 @@ Implemented and unit-tested:
    withdrawals (spending) on tabular statements like RBC/CIBC.
 8. TFSA/FHSA account-optimization popup, editable contribution limits, and
    CSV/PDF export of the budget breakdown.
+9. A transparent **suggested invest %** (a rule-of-thumb from your surplus vs.
+   essentials + emergency-fund guidance — not a market prediction) and a per-tier
+   dollar breakdown mapped to real, low-cost **example diversified ETFs**
+   (educational, not recommendations or stock picks).
+10. Green (income) / red (cost) highlighting, and a "Clear imported data" action
+    that keeps your goals and slider settings.
 
 Planned for the next pass: PyInstaller single-`.exe` packaging (bundling Tesseract
 + poppler) and a final edge-case hardening sweep.
+
+## Not a stock picker
+
+BankBot never predicts markets or recommends individual stocks. Risk tiers map to
+broad, well-known diversification categories (the same idea robo-advisors use), the
+suggested invest % is a transparent heuristic you can override, and example ETFs are
+shown for education only. Past performance does not guarantee future results.
 
 ## Architecture
 

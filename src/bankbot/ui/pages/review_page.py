@@ -25,10 +25,16 @@ from ...core.money import format_money
 from ...core.review_service import apply_review_decision
 
 
-def _signed_amount(txn) -> str:
+def _is_incoming(txn) -> bool:
+    return bool(txn.is_income or txn.essential_want == "income")
+
+
+def _signed_amount_html(txn) -> str:
     money = format_money(txn.amount_cents, txn.currency)
-    incoming = txn.is_income or (txn.essential_want == "income")
-    return ("+" if incoming else "−") + money
+    incoming = _is_incoming(txn)
+    color = "#1e8f4e" if incoming else "#c0392b"  # green = income, red = cost
+    sign = "+" if incoming else "−"
+    return f"<span style='color:{color};font-weight:bold'>{sign}{money}</span>"
 
 
 def _current_label(txn) -> str:
@@ -94,10 +100,12 @@ class ReviewPage(QWidget):
     def _make_row(self, txn) -> QFrame:
         row = QFrame()
         row.setObjectName("reviewRow")
+        # Drives a green/red left-edge accent via QSS ([flow="in"]/[flow="out"]).
+        row.setProperty("flow", "in" if _is_incoming(txn) else "out")
         v = QVBoxLayout(row)
 
         header = QLabel(
-            f"<b>{_signed_amount(txn)}</b> — {txn.description}  "
+            f"{_signed_amount_html(txn)} — {txn.description}  "
             f"<span style='color:gray'>({txn.txn_date:%b %d, %Y})</span>"
         )
         header.setWordWrap(True)

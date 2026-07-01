@@ -69,7 +69,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central)
 
         # Data-change wiring: any mutation refreshes the derived pages.
-        for page in (self._import, self._review, self._goals, self._settings):
+        for page in (self._import, self._review, self._goals, self._settings, self._summary):
             page.dataChanged.connect(self._on_data_changed)
 
         self._nav.setCurrentRow(0)

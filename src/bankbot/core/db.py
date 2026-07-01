@@ -61,6 +61,21 @@ def reset_data() -> None:
         _seed(s)
 
 
+def clear_transactions() -> None:
+    """Delete imported statements and transactions only.
+
+    Goals, settings (currency, slider %s, limits) and learned categorization rules
+    are kept, so the user can wipe imported data and re-import without losing setup.
+    """
+    from sqlalchemy import delete
+
+    from .models import Statement, Transaction
+
+    with session_scope() as s:
+        s.execute(delete(Transaction))
+        s.execute(delete(Statement))
+
+
 def _seed(session: Session) -> None:
     """Idempotently seed default settings, categories, and builtin rules."""
     from .categorize.rules import DEFAULT_CATEGORIES, default_rule_rows

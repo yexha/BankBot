@@ -1,11 +1,13 @@
 """Monthly income vs cost summary with a category breakdown."""
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QComboBox,
     QHBoxLayout,
     QLabel,
+    QMessageBox,
+    QPushButton,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -14,6 +16,7 @@ from PySide6.QtWidgets import (
 
 from ...core import repository as repo
 from ...core.budget import summarize
+from ...core.db import clear_transactions
 from ...core.money import format_money
 from ..widgets.money_summary import MoneySummary
 
@@ -24,6 +27,8 @@ _MONTH_NAMES = [
 
 
 class SummaryPage(QWidget):
+    dataChanged = Signal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout(self)
@@ -46,6 +51,18 @@ class SummaryPage(QWidget):
         self._table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         layout.addWidget(self._table, 1)
 
+        footer = QHBoxLayout()
+        footer.addStretch(1)
+        self._clear_btn = QPushButton("Clear imported data")
+        self._clear_btn.setObjectName("dangerButton")
+        self._clear_btn.setToolTip(
+            "Delete all imported statements and transactions. Your goals and slider "
+            "settings are kept."
+        )
+        self._clear_btn.clicked.connect(self._clear_imported)
+        footer.addWidget(self._clear_btn)
+        layout.addLayout(footer)
+
     def refresh(self) -> None:
         months = repo.available_months() or [repo.latest_month()]
         self._month.blockSignals(True)
@@ -63,6 +80,24 @@ class SummaryPage(QWidget):
 
     def _on_month_changed(self, _index: int) -> None:
         self._render()
+
+    def _clear_imported(self) -> None:
+        confirm = QMessageBox.question(
+            self, "Clear imported data?",
+            "This deletes all imported statements and transactions. Your goals, "
+            "investment slider settings and learned rules are kept. Continue?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if confirm != QMessageBox.StandardButton.Yes:
+            return
+        try:
+            clear_transactions()
+        except Exception as exc:  # noqa: BLE001
+            QMessageBox.warning(self, "Could not clear", str(exc))
+            return
+        self.refresh()
+        self.dataChanged.emit()
 
     def _render(self) -> None:
         data = self._month.currentData()

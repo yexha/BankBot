@@ -41,9 +41,14 @@ QFrame#moneySummary, QFrame#reviewRow, QFrame#tierCard {
     border-radius: 8px;
     padding: 12px;
 }
-QFrame#reviewRow { margin-bottom: 8px; }
+QFrame#reviewRow { margin-bottom: 8px; border-left: 4px solid #dfe3ea; }
+QFrame#reviewRow[flow="in"] { border-left: 4px solid #1e8f4e; }
+QFrame#reviewRow[flow="out"] { border-left: 4px solid #c0392b; }
+QLabel#summaryValue_income { color: #1e8f4e; font-weight: bold; }
+QLabel#summaryValue_essential, QLabel#summaryValue_want { color: #c0392b; }
 QLabel#summaryValue_leftover { font-weight: bold; color: #1e824c; }
 QLabel#summaryValue_leftover[negative="true"] { color: #c0392b; }
+QLabel#tierAmount { color: #2d6cdf; }
 QLabel#summaryReview, QLabel#reviewHint { color: #8a6d1a; }
 QLabel#tierExamples { color: #445; font-style: italic; }
 QLabel#frameworkNote, QLabel#investDisclaimer {

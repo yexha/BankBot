@@ -170,6 +170,20 @@ def test_all_transactions_returns_everything(database):
     assert len(repo.all_transactions()) == 2
 
 
+def test_clear_transactions_keeps_goals_and_settings(database):
+    from bankbot.core.db import clear_transactions
+
+    _add_txn("LOBLAWS", 42000, "debit")
+    repo.add_goal("Vehicle", 1500000, date(2027, 12, 1), 0, "CAD")
+    repo.set_setting("monthly_invest_pct", "80")
+
+    clear_transactions()
+
+    assert repo.all_transactions() == []
+    assert len(repo.list_goals()) == 1                 # goals kept
+    assert repo.get_setting("monthly_invest_pct") == "80"  # slider % kept
+
+
 def test_settings_roundtrip(database):
     repo.set_setting("currency", "USD")
     assert repo.get_setting("currency") == "USD"
