@@ -35,9 +35,16 @@ def apply_review_decision(txn_id: int, decision: str, remember: bool = True) -> 
         txn.review_status = "confirmed"
         txn.confidence = 1.0
         if is_income:
+            # Overriding to income also corrects the direction (e.g. a deposit that
+            # was parsed as a withdrawal), so summaries treat it as money in.
             txn.category = "Income"
-        elif txn.category in (None, "Uncategorized", "Transfer", "Cash Withdrawal"):
-            txn.category = "Recurring Bill" if recurring else (txn.category or "Uncategorized")
+            txn.direction = "credit"
+        else:
+            # Any expense label means money out; correct a mis-parsed direction too.
+            if decision in ("essential", "want", "recurring_bill"):
+                txn.direction = "debit"
+            if txn.category in (None, "Uncategorized", "Transfer", "Cash Withdrawal", "Income"):
+                txn.category = "Recurring Bill" if recurring else "Uncategorized"
         category = txn.category or "Uncategorized"
 
         if remember and txn.normalized_desc:

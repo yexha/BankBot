@@ -129,6 +129,47 @@ def test_learned_income_applies_to_future_credit(database):
     assert feb.review_status == "auto"
 
 
+def test_override_debit_to_income(database):
+    # A deposit that was mis-parsed as a withdrawal (debit).
+    tid = _add_txn("PAYCHEQUE FROM EMPLOYER", 300000, "debit")
+    recategorize_all()
+    apply_review_decision(tid, "income", remember=True)
+    with session_scope() as s:
+        t = s.get(Transaction, tid)
+        assert t.is_income
+        assert t.essential_want == "income"
+        assert t.direction == "credit"          # direction corrected
+    # And it now counts as income in the month summary.
+    from bankbot.core.budget import summarize
+    y, m = repo.latest_month()
+    assert summarize(repo.transactions_for_month(y, m)).income_cents == 300000
+
+
+def test_override_income_back_to_expense(database):
+    tid = _add_txn("REFUND THAT IS ACTUALLY A FEE", 5000, "credit")
+    recategorize_all()
+    apply_review_decision(tid, "income", remember=False)
+    # User realizes it's an expense and flips it.
+    apply_review_decision(tid, "want", remember=False)
+    with session_scope() as s:
+        t = s.get(Transaction, tid)
+        assert not t.is_income
+        assert t.essential_want == "want"
+        assert t.direction == "debit"
+        assert t.category != "Income"
+    from bankbot.core.budget import summarize
+    y, m = repo.latest_month()
+    s = summarize(repo.transactions_for_month(y, m))
+    assert s.income_cents == 0
+    assert s.want_cents == 5000
+
+
+def test_all_transactions_returns_everything(database):
+    _add_txn("A", 100, "debit", date(2026, 1, 1))
+    _add_txn("B", 200, "credit", date(2026, 2, 1))
+    assert len(repo.all_transactions()) == 2
+
+
 def test_settings_roundtrip(database):
     repo.set_setting("currency", "USD")
     assert repo.get_setting("currency") == "USD"

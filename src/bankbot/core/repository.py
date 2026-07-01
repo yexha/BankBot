@@ -70,6 +70,13 @@ def review_queue() -> list[Transaction]:
         return list(s.scalars(stmt).all())
 
 
+def all_transactions() -> list[Transaction]:
+    """Every transaction, newest first — used by the 'override anything' review view."""
+    with session_scope() as s:
+        stmt = select(Transaction).order_by(Transaction.txn_date.desc())
+        return list(s.scalars(stmt).all())
+
+
 # --- Goals --------------------------------------------------------------------
 def list_goals() -> list[Goal]:
     with session_scope() as s:
